@@ -2,7 +2,6 @@
 #define PNMIMAGE_H
 
 #include <functional>
-
 #include <cstdio>
 #include <inttypes.h>
 
@@ -20,10 +19,11 @@ public:
     bool write(FILE *fp) const;
     bool set_pixel(size_t x, size_t y, pixel_t pixel);
     pixel_t get_pixel(size_t x, size_t y) const;
+    pixel_t *get_pixels() const;
     size_t get_width() const;
     size_t get_height() const;
     long get_denominator() const;
-    void insert_chunk(pixel_t **chunk,
+    void insert_chunk(pixel_t *chunk,
                       size_t x,
                       size_t y,
                       size_t width,
@@ -37,7 +37,7 @@ public:
 private:
     size_t width, height;
     long denominator;
-    pixel_t **pixels;
+    pixel_t *pixels;
 };
 
 #endif

@@ -2,53 +2,39 @@
 
 #include "pnm_image.h"
 
-PnmImage::PnmImage(size_t width, size_t height, long denom)
-{
+PnmImage::PnmImage(size_t width, size_t height, long denom) {
     init(width, height, denom);
 }
 
-PnmImage::PnmImage(size_t width, size_t height)
-{
+PnmImage::PnmImage(size_t width, size_t height) {
     init(width, height, 255);
 }
 
-PnmImage::~PnmImage()
-{
-    for (size_t i = 0; i < height; i++) {
-         delete [] this->pixels[i];
-    }
-
+PnmImage::~PnmImage() {
     delete [] this->pixels;
 }
 
-void PnmImage::init(size_t width, size_t height, long denom)
-{
+void PnmImage::init(size_t width, size_t height, long denom) {
     this->width = width;
     this->height = height;
     this->denominator = denom;
 
-    this->pixels = new pixel_t*[height];
-    for (size_t i = 0; i < height; i++) {
-        this->pixels[i] = new pixel_t[width];
-    }
+    this->pixels = new pixel_t[width * height];
 }
 
-PnmImage PnmImage::read(FILE *fp)
-{
+PnmImage PnmImage::read(FILE *fp) {
     /* read from file tho */
     return PnmImage(100, 100, 255);
 }
 
-bool PnmImage::write(std::string filename) const
-{
+bool PnmImage::write(std::string filename) const {
     FILE *fp = fopen(filename.c_str(), "w+");
     bool res = write(fp);
     fclose(fp);
     return res;
 }
 
-bool PnmImage::write(FILE *fp) const
-{
+bool PnmImage::write(FILE *fp) const {
     if (fp == NULL) {
         return false;
     }
@@ -56,69 +42,62 @@ bool PnmImage::write(FILE *fp) const
     fprintf(fp, "P3\n");
     fprintf(fp, "%lu %lu\n", this->width, this->height);
     fprintf(fp, "%lu\n", this->denominator);
-    for (size_t y = 0; y < this->height; y++) {
-        for (size_t x = 0; x < this->width; x++) {
-            pixel_t pix = this->pixels[y][x];
-            fprintf(fp, " %lu %lu %lu", pix.r, pix.g, pix.b);
+    for (size_t i = 0; i < this->height * this->width; i++) {
+        pixel_t pix = this->pixels[i];
+        fprintf(fp, " %lu %lu %lu", pix.r, pix.g, pix.b);
+        if (i % this->height == 0) {
+            fprintf(fp, "\n");
         }
-        fprintf(fp, "\n");
     }
 
     return true;
 }
 
-bool PnmImage::set_pixel(size_t x, size_t y, pixel_t pixel)
-{
+bool PnmImage::set_pixel(size_t x, size_t y, pixel_t pixel) {
     if (x >= width || y >= height) {
         return false;
     }
 
-    if (this->pixels == NULL || *(this->pixels) == NULL) {
+    if (this->pixels == NULL) {
         return false;
     }
 
-    this->pixels[y][x] = pixel;
+    this->pixels[y * width + x] = pixel;
     return true;
 }
 
-pixel_t PnmImage::get_pixel(size_t x, size_t y) const
-{
-    return this->pixels[y][x];
+pixel_t PnmImage::get_pixel(size_t x, size_t y) const {
+    return this->pixels[y * width + x];
 }
 
-size_t PnmImage::get_width() const
-{
+size_t PnmImage::get_width() const {
     return this->width;
 }
 
-size_t PnmImage::get_height() const
-{
+size_t PnmImage::get_height() const {
     return this->height;
 }
 
-void PnmImage::insert_chunk(pixel_t **chunk,
+void PnmImage::insert_chunk(pixel_t *chunk,
                             size_t startx,
                             size_t starty,
                             size_t width,
-                            size_t height)
-{
+                            size_t height) {
     for (size_t x = 0; x < width; x++) {
         for (size_t y = 0; y < height; y++) {
-            set_pixel(x + startx, y + starty, chunk[y][x]);
+            set_pixel(x + startx, y + starty, chunk[y * width + x]);
         }
     }
 }
 
-long PnmImage::get_denominator() const
-{
+long PnmImage::get_denominator() const {
     return denominator;
 }
 
-void PnmImage::map(map_function f)
-{
+void PnmImage::map(map_function f) {
     for (size_t y = 0; y < height; y++) {
         for (size_t x = 0; x < width; x++) {
-            pixels[y][x] = f(this, pixels[y][x], x, y);
+            pixels[y * width + x] = f(this, pixels[y * width + x], x, y);
         }
     }
 }
