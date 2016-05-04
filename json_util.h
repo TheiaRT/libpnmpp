@@ -1,8 +1,10 @@
-#ifndef MISC_H
-#define MISC_H
+#ifndef JSON_UTIL_H
+#define JSON_UTIL_H
 
-#include "dist/json/json.h"
+#include "dist/jsoncpp/json/json.h"
 
-std::string json_to_string(Json::Value root);
+
+std::string json_to_string(const Json::Value &root);
+bool string_to_json(const std::string &in, Json::Value &root);
 
 #endif

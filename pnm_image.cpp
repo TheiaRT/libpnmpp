@@ -11,7 +11,7 @@ PnmImage::PnmImage(size_t width, size_t height) {
 }
 
 PnmImage::~PnmImage() {
-    delete [] this->pixels;
+    delete [] pixels;
 }
 
 void PnmImage::init(size_t width, size_t height, long denom) {
@@ -40,12 +40,12 @@ bool PnmImage::write(FILE *fp) const {
     }
 
     fprintf(fp, "P3\n");
-    fprintf(fp, "%lu %lu\n", this->width, this->height);
-    fprintf(fp, "%lu\n", this->denominator);
-    for (size_t i = 0; i < this->height * this->width; i++) {
-        pixel_t pix = this->pixels[i];
+    fprintf(fp, "%lu %lu\n", width, height);
+    fprintf(fp, "%lu\n", denominator);
+    for (size_t i = 0; i < height * width; i++) {
+        pixel_t pix = pixels[i];
         fprintf(fp, " %lu %lu %lu", pix.r, pix.g, pix.b);
-        if (i % this->height == 0) {
+        if (i % height == 0) {
             fprintf(fp, "\n");
         }
     }
@@ -58,24 +58,28 @@ bool PnmImage::set_pixel(size_t x, size_t y, pixel_t pixel) {
         return false;
     }
 
-    if (this->pixels == NULL) {
+    if (pixels == NULL) {
         return false;
     }
 
-    this->pixels[y * width + x] = pixel;
+    pixels[y * width + x] = pixel;
     return true;
 }
 
 pixel_t PnmImage::get_pixel(size_t x, size_t y) const {
-    return this->pixels[y * width + x];
+    return pixels[y * width + x];
+}
+
+pixel_t *PnmImage::get_pixels() const {
+    return pixels;
 }
 
 size_t PnmImage::get_width() const {
-    return this->width;
+    return width;
 }
 
 size_t PnmImage::get_height() const {
-    return this->height;
+    return height;
 }
 
 void PnmImage::insert_chunk(pixel_t *chunk,
